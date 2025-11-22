@@ -119,8 +119,8 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Markdown (for Reader Mode)
-    implementation("com.halilibo.compose:richtext-markdown:0.17.0")
-    implementation("com.halilibo.compose:richtext-ui-material3:0.17.0")
+//    implementation("com.halilibo.compose:richtext-markdown:0.17.0")
+//    implementation("com.halilibo.compose:richtext-ui-material3:0.17.0")
 
     // WebView
     implementation("androidx.webkit:webkit:1.9.0")
