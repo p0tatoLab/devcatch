@@ -1,6 +1,8 @@
 package com.example.devcatch.di
 
+import com.example.devcatch.data.repository.ArticleRepositoryImpl
 import com.example.devcatch.data.repository.NewsSourceRepositoryImpl
+import com.example.devcatch.domain.repository.ArticleRepository
 import com.example.devcatch.domain.repository.NewsSourceRepository
 import dagger.Binds
 import dagger.Module
@@ -17,4 +19,10 @@ abstract class RepositoryModule {
     abstract fun bindNewsSourceRepository(
         impl: NewsSourceRepositoryImpl
     ): NewsSourceRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindArticleRepository(
+        impl: ArticleRepositoryImpl
+    ): ArticleRepository
 }
