@@ -9,6 +9,7 @@ import com.example.devcatch.domain.model.Priority
 import com.example.devcatch.domain.model.SourceType
 import com.example.devcatch.domain.repository.NewsSourceRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -81,13 +82,16 @@ class NewsSourceRepositoryImpl @Inject constructor(
     }
 
     override suspend fun initializeDefaultSources() {
-        // データベースが空の場合のみデフォルトソースを挿入
-        val existingSources = newsSourceDao.getAllSources()
-        existingSources.collect { sources ->
-            if (sources.isEmpty()) {
+        try {
+            // Flowから最初の値を取得
+            val existingSources = newsSourceDao.getAllSources().first()
+
+            if (existingSources.isEmpty()) {
                 val defaultSources = DefaultNewsSources.getDefaultSources()
                 insertSources(defaultSources)
             }
+        } catch (e: Exception) {
+            android.util.Log.e("NewsSourceRepository", "Error initializing sources", e)
         }
     }
 
