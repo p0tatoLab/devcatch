@@ -39,6 +39,10 @@ class FeedViewModel @Inject constructor(
     private fun loadArticles() {
         viewModelScope.launch {
             _selectedCategory
+                .onEach {
+                    // カテゴリ変更時にローディング状態にする
+                    _uiState.update { it.copy(isLoading = true) }
+                }
                 .flatMapLatest { category ->
                     if (category == null) {
                         getArticlesUseCase.withAnalysis()
@@ -81,7 +85,7 @@ class FeedViewModel @Inject constructor(
      */
     fun selectCategory(category: Category?) {
         _selectedCategory.value = category
-        _uiState.update { it.copy(selectedCategory = category, isLoading = true) }
+        _uiState.update { it.copy(selectedCategory = category) }
     }
 
     /**
