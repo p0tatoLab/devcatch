@@ -129,6 +129,16 @@ class ArticleRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun searchArticlesWithAnalysis(query: String): Flow<List<ArticleWithAnalysis>> {
+        return articleDao.searchArticles(query).map { articleEntities ->
+            articleEntities.map { articleEntity ->
+                val article = articleEntity.toDomainModel()
+                val analysis = analysisDao.getAnalysisByArticleId(articleEntity.id)?.toDomainModel()
+                ArticleWithAnalysis(article, analysis)
+            }
+        }
+    }
+
     override fun getArticlesBySource(source: String): Flow<List<Article>> {
         return articleDao.getArticlesBySource(source).map { entities ->
             entities.map { it.toDomainModel() }

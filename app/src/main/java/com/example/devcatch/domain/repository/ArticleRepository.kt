@@ -80,6 +80,11 @@ interface ArticleRepository {
     fun searchArticles(query: String): Flow<List<Article>>
 
     /**
+     * AI分析付きで記事を検索（タイトルまたは内容）
+     */
+    fun searchArticlesWithAnalysis(query: String): Flow<List<ArticleWithAnalysis>>
+
+    /**
      * ソース別に記事を取得
      */
     fun getArticlesBySource(source: String): Flow<List<Article>>

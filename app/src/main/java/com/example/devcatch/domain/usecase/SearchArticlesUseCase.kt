@@ -1,6 +1,7 @@
 package com.example.devcatch.domain.usecase
 
 import com.example.devcatch.domain.model.Article
+import com.example.devcatch.domain.model.ArticleWithAnalysis
 import com.example.devcatch.domain.repository.ArticleRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -19,6 +20,17 @@ class SearchArticlesUseCase @Inject constructor(
             repository.getAllArticles()
         } else {
             repository.searchArticles(query)
+        }
+    }
+
+    /**
+     * AI分析付きで記事を検索
+     */
+    fun withAnalysis(query: String): Flow<List<ArticleWithAnalysis>> {
+        return if (query.isBlank()) {
+            repository.getAllArticlesWithAnalysis()
+        } else {
+            repository.searchArticlesWithAnalysis(query)
         }
     }
 }
