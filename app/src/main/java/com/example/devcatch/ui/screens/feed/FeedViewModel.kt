@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.devcatch.domain.model.Category
 import com.example.devcatch.domain.usecase.BookmarkArticleUseCase
+import com.example.devcatch.domain.usecase.FetchArticlesUseCase
 import com.example.devcatch.domain.usecase.GetArticlesUseCase
 import com.example.devcatch.domain.usecase.GetUnreadCountUseCase
 import com.example.devcatch.domain.usecase.MarkAsReadUseCase
@@ -20,7 +21,8 @@ class FeedViewModel @Inject constructor(
     private val getArticlesUseCase: GetArticlesUseCase,
     private val bookmarkArticleUseCase: BookmarkArticleUseCase,
     private val markAsReadUseCase: MarkAsReadUseCase,
-    private val getUnreadCountUseCase: GetUnreadCountUseCase
+    private val getUnreadCountUseCase: GetUnreadCountUseCase,
+    private val fetchArticlesUseCase: FetchArticlesUseCase
 ) : ViewModel() {
 
     private val _selectedCategory = MutableStateFlow<Category?>(null)
@@ -40,7 +42,6 @@ class FeedViewModel @Inject constructor(
         viewModelScope.launch {
             _selectedCategory
                 .onEach {
-                    // カテゴリ変更時にローディング状態にする
                     _uiState.update { it.copy(isLoading = true) }
                 }
                 .flatMapLatest { category ->
@@ -103,6 +104,32 @@ class FeedViewModel @Inject constructor(
     fun markAsRead(articleId: String) {
         viewModelScope.launch {
             markAsReadUseCase.markAsRead(articleId)
+        }
+    }
+
+    /**
+     * 手動で記事を更新
+     */
+    fun refreshArticles() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true) }
+
+            val result = fetchArticlesUseCase()
+
+            result.fold(
+                onSuccess = { count ->
+                    // 成功（記事は自動的にFlowで更新される）
+                    _uiState.update { it.copy(isRefreshing = false) }
+                },
+                onFailure = { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isRefreshing = false,
+                            error = exception.message
+                        )
+                    }
+                }
+            )
         }
     }
 }

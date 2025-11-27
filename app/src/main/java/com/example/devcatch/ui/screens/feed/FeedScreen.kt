@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -57,73 +58,95 @@ fun FeedScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        PullToRefreshBox(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = { viewModel.refreshArticles() },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // カテゴリフィルター
-            CategoryFilterChips(
-                selectedCategory = uiState.selectedCategory,
-                onCategorySelected = { viewModel.selectCategory(it) }
-            )
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // カテゴリフィルター
+                CategoryFilterChips(
+                    selectedCategory = uiState.selectedCategory,
+                    onCategorySelected = { viewModel.selectCategory(it) }
+                )
 
-            // 記事一覧
-            when {
-                uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
+                // 記事一覧
+                when {
+                    uiState.isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
-                }
 
-                uiState.error != null -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "エラー: ${uiState.error}",
-                            color = MaterialTheme.colorScheme.error
-                        )
+                    uiState.error != null -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "エラー: ${uiState.error}",
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                                Button(onClick = { viewModel.refreshArticles() }) {
+                                    Text("再試行")
+                                }
+                            }
+                        }
                     }
-                }
 
-                uiState.articles.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "記事がありません",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    uiState.articles.isEmpty() -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Text(
+                                    text = "記事がありません",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Button(onClick = { viewModel.refreshArticles() }) {
+                                    Text("記事を取得")
+                                }
+                            }
+                        }
                     }
-                }
 
-                else -> {
-                    LazyColumn(
-                        contentPadding = PaddingValues(vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(
-                            items = uiState.articles,
-                            key = { it.id }
-                        ) { article ->
-                            ArticleCard(
-                                article = article,
-                                onArticleClick = {
-                                    viewModel.markAsRead(article.id)
-                                    onArticleClick(article.id)
-                                },
-                                onBookmarkClick = {
-                                    viewModel.toggleBookmark(article.id)
-                                },
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
+                    else -> {
+                        LazyColumn(
+                            contentPadding = PaddingValues(vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(
+                                items = uiState.articles,
+                                key = { it.id }
+                            ) { article ->
+                                ArticleCard(
+                                    article = article,
+                                    onArticleClick = {
+                                        viewModel.markAsRead(article.id)
+                                        onArticleClick(article.id)
+                                    },
+                                    onBookmarkClick = {
+                                        viewModel.toggleBookmark(article.id)
+                                    },
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -132,10 +155,6 @@ fun FeedScreen(
     }
 }
 
-/**
- * カテゴリフィルターチップ
- */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryFilterChips(
     selectedCategory: Category?,
@@ -156,7 +175,7 @@ fun CategoryFilterChips(
         }
 
         items(
-            items = Category.sortedByPriority().take(5), // 主要カテゴリのみ表示
+            items = Category.sortedByPriority().take(5),
             key = { it.name }
         ) { category ->
             FilterChip(

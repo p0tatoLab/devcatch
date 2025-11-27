@@ -26,7 +26,8 @@ class DataInitializer @Inject constructor(
         newsSourceRepository.initializeDefaultSources()
 
         // テストデータを初期化（開発中のみ）
-        initializeTestData()
+        // 実RSSから取得するため、コメントアウト
+        // initializeTestData()
     }
 
     /**
