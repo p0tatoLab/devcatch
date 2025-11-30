@@ -142,6 +142,33 @@ fun SettingsScreen(
                         Divider(modifier = Modifier.padding(vertical = 8.dp))
                     }
 
+                    // 自動更新セクション
+                    item {
+                        SettingsSectionHeader(title = "自動更新")
+                    }
+
+                    item {
+                        SettingsItem(
+                            icon = Icons.Default.Sync,
+                            title = "自動更新",
+                            subtitle = "6時間ごとに記事を自動取得します",
+                            onClick = null  // 今は常にON（将来的にON/OFF機能を追加可能）
+                        )
+                    }
+
+                    item {
+                        SettingsItem(
+                            icon = Icons.Default.AutoDelete,
+                            title = "自動クリーンアップ",
+                            subtitle = "毎日、30日以上前の記事を自動削除します",
+                            onClick = null
+                        )
+                    }
+
+                    item {
+                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    }
+
                     // アプリ情報
                     item {
                         SettingsSectionHeader(title = "アプリについて")

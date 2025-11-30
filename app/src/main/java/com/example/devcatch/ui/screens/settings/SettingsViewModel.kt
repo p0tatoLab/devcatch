@@ -2,11 +2,17 @@ package com.example.devcatch.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.devcatch.domain.repository.ArticleRepository
 import com.example.devcatch.domain.repository.NewsSourceRepository
 import com.example.devcatch.domain.usecase.DeleteOldArticlesUseCase
 import com.example.devcatch.domain.usecase.GetNewsSourcesUseCase
 import com.example.devcatch.domain.usecase.ToggleNewsSourceUseCase
+import com.example.devcatch.worker.CleanupWorker
+import com.example.devcatch.worker.FetchArticlesWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

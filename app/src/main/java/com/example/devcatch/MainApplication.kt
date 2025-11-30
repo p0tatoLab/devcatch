@@ -1,7 +1,10 @@
 package com.example.devcatch
 
 import android.app.Application
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import com.example.devcatch.data.initializer.DataInitializer
+import com.example.devcatch.worker.WorkManagerInitializer
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -10,10 +13,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltAndroidApp
-class DevCatchApplication : Application() {
+class MainApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var dataInitializer: DataInitializer
+
+    @Inject
+    lateinit var workManagerInitializer: WorkManagerInitializer
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -24,5 +33,13 @@ class DevCatchApplication : Application() {
         applicationScope.launch {
             dataInitializer.initialize()
         }
+
+        // WorkManagerをスケジュール
+        workManagerInitializer.schedulePeriodicWork()
     }
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 }
