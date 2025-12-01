@@ -6,6 +6,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.devcatch.domain.usecase.FetchArticlesUseCase
+import com.example.devcatch.util.NotificationHelper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -16,7 +17,8 @@ import dagger.assisted.AssistedInject
 class FetchArticlesWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
-    private val fetchArticlesUseCase: FetchArticlesUseCase
+    private val fetchArticlesUseCase: FetchArticlesUseCase,
+    private val notificationHelper: NotificationHelper
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -28,6 +30,12 @@ class FetchArticlesWorker @AssistedInject constructor(
             result.fold(
                 onSuccess = { count ->
                     Log.d(TAG, "Successfully fetched $count articles")
+
+                    // 記事が取得できた場合に通知
+                    if (count > 0) {
+                        notificationHelper.showNewArticlesNotification(count)
+                    }
+
                     Result.success()
                 },
                 onFailure = { exception ->

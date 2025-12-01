@@ -8,6 +8,7 @@ import com.example.devcatch.domain.usecase.FetchArticlesUseCase
 import com.example.devcatch.domain.usecase.GetArticlesUseCase
 import com.example.devcatch.domain.usecase.GetUnreadCountUseCase
 import com.example.devcatch.domain.usecase.MarkAsReadUseCase
+import com.example.devcatch.util.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -22,7 +23,8 @@ class FeedViewModel @Inject constructor(
     private val bookmarkArticleUseCase: BookmarkArticleUseCase,
     private val markAsReadUseCase: MarkAsReadUseCase,
     private val getUnreadCountUseCase: GetUnreadCountUseCase,
-    private val fetchArticlesUseCase: FetchArticlesUseCase
+    private val fetchArticlesUseCase: FetchArticlesUseCase,
+    private val notificationHelper: NotificationHelper
 ) : ViewModel() {
 
     private val _selectedCategory = MutableStateFlow<Category?>(null)
@@ -120,6 +122,14 @@ class FeedViewModel @Inject constructor(
                 onSuccess = { count ->
                     // 成功（記事は自動的にFlowで更新される）
                     _uiState.update { it.copy(isRefreshing = false) }
+
+                    // 通知を表示（手動更新の場合は常に表示）
+                    if (count > 0) {
+                        notificationHelper.showFetchCompletedNotification(
+                            successCount = count,
+                            failureCount = 0
+                        )
+                    }
                 },
                 onFailure = { exception ->
                     _uiState.update {

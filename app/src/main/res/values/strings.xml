@@ -60,4 +60,10 @@
     <string name="read">既読</string>
     <string name="unread">未読</string>
     <string name="refresh">更新</string>
+
+    <!-- 通知権限 -->
+    <string name="notification_permission_title">通知を許可</string>
+    <string name="notification_permission_message">新着記事の通知を受け取るには通知を許可してください。</string>
+    <string name="notification_permission_grant">許可</string>
+    <string name="notification_permission_deny">後で</string>
 </resources>
